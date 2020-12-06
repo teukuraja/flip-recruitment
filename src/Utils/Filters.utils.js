@@ -2,6 +2,11 @@
 // eslint-disable-next-line no-unused-vars
 import type {ResponseTransactionProp} from '../Types/TransactionType';
 import {numberWithCommas, toRupiah} from './Helpers.utils';
+import Constants from '../Constants/Constants';
+
+const {
+  SORT_BY: {NAME_ASC, NAME_DESC, DATE_NEW, DATE_OLD},
+} = Constants;
 
 /**
  * @param {ResponseTransactionProp} data
@@ -33,4 +38,51 @@ const filterData = (data, query, dataSetter) => {
   dataSetter(newData);
 };
 
-export {filterData};
+/**
+ * @param {ResponseTransactionProp}                     data
+ * @param {NAME_ASC | NAME_DESC | DATE_NEW | DATE_OLD } sortType
+ * @param {function}                                    dataSetter
+ */
+const sortBy = (data, sortType, dataSetter) => {
+  if (!sortType || sortType === '') {
+    dataSetter(data);
+  }
+  let compare;
+  let A, B;
+  let isAsc = true;
+
+  compare = (a, b) => {
+    if (sortType === NAME_ASC) {
+      A = a.beneficiary_name.toLowerCase();
+      B = b.beneficiary_name.toLowerCase();
+      isAsc = true;
+    } else if (sortType === NAME_DESC) {
+      A = a.beneficiary_name.toLowerCase();
+      B = b.beneficiary_name.toLowerCase();
+      isAsc = false;
+    } else if (sortType === DATE_NEW) {
+      A = a.completed_at.toLowerCase();
+      B = b.completed_at.toLowerCase();
+      isAsc = true;
+    } else if (sortType === DATE_OLD) {
+      A = a.completed_at.toLowerCase();
+      B = b.completed_at.toLowerCase();
+      isAsc = false;
+    }
+    let comp = 0;
+    if (A > B) {
+      comp = 1;
+    } else if (A < B) {
+      comp = -1;
+    }
+
+    if (!isAsc) {
+      return comp * -1;
+    }
+    return comp;
+  };
+  data.sort(compare);
+  dataSetter(data);
+};
+
+export {filterData, sortBy};

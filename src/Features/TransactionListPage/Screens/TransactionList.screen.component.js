@@ -1,7 +1,14 @@
 // @flow
 
 import React, {useEffect, useState, useCallback} from 'react';
-import {View, Text, Image, TextInput, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  FlatList,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import {Styles} from './TransactionList.screen.style';
 import {Icons} from '../../../Themes';
 import {NavigationProp, RouteProp} from '@react-navigation/native';
@@ -15,7 +22,8 @@ import {
 import ButtonStatus from '../Components/ButtonStatus/ButtonStatus.component';
 import type {ResponseTransactionProp} from '../../../Types/TransactionType';
 import TransactionStatus from '../Components/TransactionStatus/TransactionStatus.component';
-import {filterData} from '../../../Utils/Filters.utils';
+import {filterData, sortBy} from '../../../Utils/Filters.utils';
+import ModalSortBy from '../Components/ModalSortBy/ModalSortBy.component';
 
 type ScreenProps = {
   navigation: NavigationProp,
@@ -25,15 +33,39 @@ type ScreenProps = {
 const TransactionListScreen = (props: ScreenProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [data: ResponseTransactionProp, setData: function] = useState([]);
+  const [checked, setChecked] = useState(0);
+  const [isModalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     actionFilter();
     return () => {};
   }, [actionFilter, searchQuery]);
 
+  useEffect(() =>{
+    onSortSelected();
+    return () => {};
+  }, [onSortSelected, checked]);
+
   const onSearchQuery = (value) => {
     setSearchQuery(value);
   };
+
+  const onPressSortByMenu = () => {
+    setModalVisible(true);
+  };
+
+  const hideModalSortBy = () => {
+    setModalVisible(false);
+  };
+
+  const onSortSelected = useCallback(() => {
+    if (checked === 0) {
+      const transactionList = parseObjToArr(dummyData);
+      setData(transactionList);
+    } else {
+      sortBy(data, checked, setData);
+    }
+  }, [checked, data]);
 
   const actionFilter = useCallback(() => {
     const transactionList = parseObjToArr(dummyData);
@@ -86,10 +118,12 @@ const TransactionListScreen = (props: ScreenProps) => {
             onChangeText={onSearchQuery}
           />
         </View>
-        <View style={Styles.filterMoreContainer}>
-          <Text style={Styles.filterMoreLabel}>URUTKAN</Text>
-          <Image source={Icons.chevron_down} style={Styles.filterMoreIcon} />
-        </View>
+        <TouchableWithoutFeedback onPress={onPressSortByMenu}>
+          <View style={Styles.filterMoreContainer}>
+            <Text style={Styles.filterMoreLabel}>URUTKAN</Text>
+            <Image source={Icons.chevron_down} style={Styles.filterMoreIcon} />
+          </View>
+        </TouchableWithoutFeedback>
       </View>
       <View style={Styles.content}>
         <FlatList
@@ -99,6 +133,13 @@ const TransactionListScreen = (props: ScreenProps) => {
           contentContainerStyle={Styles.flatList}
         />
       </View>
+      <ModalSortBy
+        isVisible={isModalVisible}
+        onBackButtonPress={hideModalSortBy}
+        checked={checked}
+        setChecked={setChecked}
+        onSortSelected={onSortSelected}
+      />
     </View>
   );
 };

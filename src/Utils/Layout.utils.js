@@ -80,6 +80,8 @@ const responsiveBorderRadius = (dp) =>
   (responsiveWidth(dp) + responsiveHeight(dp)) / 2;
 
 export {
+  width as WIDTH,
+  height as HEIGHT,
   responsiveWidth as rw,
   responsiveHeight as rh,
   responsiveFontValue as rf,

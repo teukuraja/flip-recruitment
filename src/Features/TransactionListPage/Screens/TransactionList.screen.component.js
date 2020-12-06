@@ -15,6 +15,7 @@ import {
 import ButtonStatus from '../Components/ButtonStatus/ButtonStatus.component';
 import type {ResponseTransactionProp} from '../../../Types/TransactionType';
 import TransactionStatus from '../Components/TransactionStatus/TransactionStatus.component';
+import {filterData} from '../../../Utils/Filters.utils';
 
 type ScreenProps = {
   navigation: NavigationProp,
@@ -39,6 +40,7 @@ const TransactionListScreen = (props: ScreenProps) => {
     if (searchQuery === '') {
       setData(transactionList);
     }
+    filterData(transactionList, searchQuery.toLowerCase(), setData);
   }, [searchQuery]);
 
   const renderTransactionItem = ({item}) => {

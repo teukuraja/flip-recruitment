@@ -26,7 +26,7 @@ const filterData = (data, query, dataSetter) => {
       newData.push(data[i]);
     } else if (numberWithCommas(data[i].amount).toString().includes(query)) {
       newData.push(data[i]);
-    } else if (toRupiah(data[i].amount).toLowerCase().includes(query.toLowerCase())) {
+    } else if (toRupiah(data[i].amount).toLowerCase().includes(query)) {
       newData.push(data[i]);
     }
   }

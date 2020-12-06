@@ -1,6 +1,7 @@
 // note: import this type for define param data type
 // eslint-disable-next-line no-unused-vars
 import type {ResponseTransactionProp} from '../Types/TransactionType';
+import {numberWithCommas, toRupiah} from './Helpers.utils';
 
 /**
  * @param {ResponseTransactionProp} data
@@ -22,6 +23,10 @@ const filterData = (data, query, dataSetter) => {
     } else if (data[i].beneficiary_bank.toLowerCase().includes(query)) {
       newData.push(data[i]);
     } else if (data[i].amount.toString().includes(query)) {
+      newData.push(data[i]);
+    } else if (numberWithCommas(data[i].amount).toString().includes(query)) {
+      newData.push(data[i]);
+    } else if (toRupiah(data[i].amount).toLowerCase().includes(query.toLowerCase())) {
       newData.push(data[i]);
     }
   }

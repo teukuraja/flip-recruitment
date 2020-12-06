@@ -65,10 +65,10 @@ const Styles = StyleSheet.create({
     marginVertical: rh(6),
   },
   transactionStatus: {
-    width: rw(10),
+    width: rw(7),
   },
   transactionDetail: {
-    paddingHorizontal: rw(16),
+    paddingHorizontal: rw(12),
     flex: 1,
     justifyContent: 'center',
   },

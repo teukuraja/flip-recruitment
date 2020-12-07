@@ -1,23 +1,21 @@
 // @flow
 
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
-  View,
-  Text,
-  Image,
-  TextInput,
   FlatList,
-  TouchableWithoutFeedback,
+  Image,
+  Text,
+  TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import {Styles} from './TransactionList.screen.style';
 import {Icons} from '../../../Themes';
 import {NavigationProp, RouteProp} from '@react-navigation/native';
-import dummyData from '../../../Mock/dummyData.json';
 import {
   dateFormatter,
   keyExtractor,
-  parseObjToArr,
   toRupiah,
 } from '../../../Utils/Helpers.utils';
 import ButtonStatus from '../Components/ButtonStatus/ButtonStatus.component';
@@ -30,13 +28,30 @@ import {Routes} from '../../../Navigation/Routes';
 type ScreenProps = {
   navigation: NavigationProp,
   route: RouteProp,
+  transactionList: ResponseTransactionProp,
+  getTransactionList: Function,
+  loading: boolean,
 };
 
-const TransactionListScreen = ({navigation, route}: ScreenProps) => {
+const TransactionListScreen = ({
+  navigation,
+  route,
+  transactionList,
+  getTransactionList,
+  loading,
+}: ScreenProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [data: ResponseTransactionProp, setData: function] = useState([]);
+  const [data: ResponseTransactionProp, setData] = useState([]);
   const [checked, setChecked] = useState(0);
   const [isModalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    getTransactionList();
+  }, [getTransactionList]);
+
+  useEffect(() => {
+    setData(transactionList);
+  }, [transactionList]);
 
   useEffect(() => {
     actionFilter();
@@ -47,6 +62,21 @@ const TransactionListScreen = ({navigation, route}: ScreenProps) => {
     onSortSelected();
     return () => {};
   }, [onSortSelected, checked]);
+
+  const actionFilter = useCallback(() => {
+    if (searchQuery === '') {
+      setData(transactionList);
+    }
+    filterData(transactionList, searchQuery.toLowerCase(), setData);
+  }, [searchQuery, transactionList]);
+
+  const onSortSelected = useCallback(() => {
+    if (checked === 0) {
+      setData(transactionList);
+    } else {
+      sortBy(data, checked, setData);
+    }
+  }, [checked, data, transactionList]);
 
   const onSearchQuery = (value) => {
     setSearchQuery(value);
@@ -60,26 +90,15 @@ const TransactionListScreen = ({navigation, route}: ScreenProps) => {
     setModalVisible(false);
   };
 
-  const onSortSelected = useCallback(() => {
-    if (checked === 0) {
-      const transactionList = parseObjToArr(dummyData);
-      setData(transactionList);
-    } else {
-      sortBy(data, checked, setData);
-    }
-  }, [checked, data]);
-
   const onPressItem = (item) => () => {
     navigation.navigate(Routes.TransactionDetailScreen, {item});
   };
 
-  const actionFilter = useCallback(() => {
-    const transactionList = parseObjToArr(dummyData);
-    if (searchQuery === '') {
-      setData(transactionList);
-    }
-    filterData(transactionList, searchQuery.toLowerCase(), setData);
-  }, [searchQuery]);
+  const actionToReload = async () => {
+    await getTransactionList();
+    setSearchQuery('');
+    setChecked(0);
+  };
 
   const renderTransactionItem = ({item}) => {
     return (
@@ -116,7 +135,6 @@ const TransactionListScreen = ({navigation, route}: ScreenProps) => {
       </TouchableOpacity>
     );
   };
-
   return (
     <View style={Styles.container}>
       <View style={Styles.filterSection}>
@@ -137,7 +155,10 @@ const TransactionListScreen = ({navigation, route}: ScreenProps) => {
         </TouchableWithoutFeedback>
       </View>
       <View style={Styles.content}>
+        {console.log('before rendering data: ', data)}
         <FlatList
+          refreshing={loading}
+          onRefresh={actionToReload}
           data={data}
           renderItem={renderTransactionItem}
           keyExtractor={keyExtractor}

@@ -14,10 +14,6 @@ const {
  * @param {function}                dataSetter
  */
 const filterData = (data, query, dataSetter) => {
-  if (query === '' || query === null || !data) {
-    dataSetter(data);
-  }
-
   const lengthData = data.length;
   const newData = [];
   for (let i = 0; i < lengthData; i++) {

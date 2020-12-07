@@ -10,6 +10,13 @@ const Constants = {
     DATE_NEW: 3,
     DATE_OLD: 4,
   },
+  RESPONSE: {
+    SUCCESS: 200,
+    FORBIDDEN: 403,
+    UNAUTHORIZED: 401,
+    NOT_FOUND: 404,
+    SERVER_ERROR: 500,
+  },
 };
 
 export default Constants;

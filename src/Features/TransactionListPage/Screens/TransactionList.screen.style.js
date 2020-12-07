@@ -3,6 +3,14 @@ import {Colors} from '../../../Themes';
 import {rbr, rf, rh, rw} from '../../../Utils/Layout.utils';
 
 const Styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: rf(14)
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.MINT_CREAM,
@@ -52,6 +60,7 @@ const Styles = StyleSheet.create({
     height: rh(25),
   },
   flatList: {
+    flex: 1,
     paddingBottom: rh(80),
   },
   transactionItemContainer: {

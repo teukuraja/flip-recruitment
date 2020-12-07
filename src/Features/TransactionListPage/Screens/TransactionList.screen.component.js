@@ -8,6 +8,7 @@ import {
   TextInput,
   FlatList,
   TouchableWithoutFeedback,
+  TouchableOpacity,
 } from 'react-native';
 import {Styles} from './TransactionList.screen.style';
 import {Icons} from '../../../Themes';
@@ -24,13 +25,14 @@ import type {ResponseTransactionProp} from '../../../Types/TransactionType';
 import TransactionStatus from '../Components/TransactionStatus/TransactionStatus.component';
 import {filterData, sortBy} from '../../../Utils/Filters.utils';
 import ModalSortBy from '../Components/ModalSortBy/ModalSortBy.component';
+import {Routes} from '../../../Navigation/Routes';
 
 type ScreenProps = {
   navigation: NavigationProp,
   route: RouteProp,
 };
 
-const TransactionListScreen = (props: ScreenProps) => {
+const TransactionListScreen = ({navigation, route}: ScreenProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [data: ResponseTransactionProp, setData: function] = useState([]);
   const [checked, setChecked] = useState(0);
@@ -41,7 +43,7 @@ const TransactionListScreen = (props: ScreenProps) => {
     return () => {};
   }, [actionFilter, searchQuery]);
 
-  useEffect(() =>{
+  useEffect(() => {
     onSortSelected();
     return () => {};
   }, [onSortSelected, checked]);
@@ -67,6 +69,10 @@ const TransactionListScreen = (props: ScreenProps) => {
     }
   }, [checked, data]);
 
+  const onPressItem = (item) => () => {
+    navigation.navigate(Routes.TransactionDetailScreen, {item});
+  };
+
   const actionFilter = useCallback(() => {
     const transactionList = parseObjToArr(dummyData);
     if (searchQuery === '') {
@@ -77,32 +83,37 @@ const TransactionListScreen = (props: ScreenProps) => {
 
   const renderTransactionItem = ({item}) => {
     return (
-      <View style={Styles.transactionItemContainer}>
-        <TransactionStatus
-          status={item?.status}
-          style={Styles.transactionStatus}
-        />
-        <View style={Styles.transactionDetail}>
-          <View style={Styles.bankDetailSection}>
-            <Text style={Styles.boldText}>
-              {item?.sender_bank.toUpperCase()}
+      <TouchableOpacity onPress={onPressItem(item)}>
+        <View style={Styles.transactionItemContainer}>
+          <TransactionStatus
+            status={item?.status}
+            style={Styles.transactionStatus}
+          />
+          <View style={Styles.transactionDetail}>
+            <View style={Styles.bankDetailSection}>
+              <Text style={Styles.boldText}>
+                {item?.sender_bank.toUpperCase()}
+              </Text>
+              <Image
+                source={Icons.arrow_right_thick}
+                style={Styles.arrowThick}
+              />
+              <Text style={Styles.boldText}>
+                {item?.beneficiary_bank.toUpperCase()}
+              </Text>
+            </View>
+            <Text style={Styles.normalText}>
+              {item?.beneficiary_name.toUpperCase()}
             </Text>
-            <Image source={Icons.arrow_right_thick} style={Styles.arrowThick} />
-            <Text style={Styles.boldText}>
-              {item?.beneficiary_bank.toUpperCase()}
+            <Text style={Styles.smallText}>
+              {toRupiah(item?.amount)}
+              <Text style={Styles.boldText}> • </Text>
+              {dateFormatter(item?.completed_at)}
             </Text>
           </View>
-          <Text style={Styles.normalText}>
-            {item?.beneficiary_name.toUpperCase()}
-          </Text>
-          <Text style={Styles.smallText}>
-            {toRupiah(item?.amount)}
-            <Text style={Styles.boldText}> • </Text>
-            {dateFormatter(item?.completed_at)}
-          </Text>
+          <ButtonStatus status={item?.status} />
         </View>
-        <ButtonStatus status={item?.status} />
-      </View>
+      </TouchableOpacity>
     );
   };
 
